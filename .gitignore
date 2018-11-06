@@ -1,0 +1,14 @@
+.git
+.idea
+.DS_store
+
+*.iml
+*.log
+*.class
+
+**/test
+**/*.iml
+**/.idea
+**/target
+**/*.class
+**/.DS_store
