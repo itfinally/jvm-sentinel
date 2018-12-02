@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.itfinally.jvm.repository.mapper.JvmThreadInfoMapper">
+  <resultMap id="JvmThreadInfoEntity" type="io.github.itfinally.jvm.entity.JvmThreadInfoEntity">
+    <result property="id" column="id" jdbcType="BIGINT"/>
+    <result property="threadName" column="thread_name" jdbcType="VARCHAR"/>
+    <result property="nativeThread" column="is_native_thread" jdbcType="TINYINT"/>
+    <result property="suspended" column="is_suspended" jdbcType="TINYINT"/>
+    <result property="state" column="state" jdbcType="VARCHAR"/>
+    <result property="lockName" column="lock_name" jdbcType="VARCHAR"/>
+    <result property="lockOwnerId" column="lock_owner_id" jdbcType="INTEGER"/>
+    <result property="lockOwnerName" column="lock_owner_name" jdbcType="VARCHAR"/>
+  </resultMap>
+</mapper>
