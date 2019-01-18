@@ -6,13 +6,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Table( name = "v1_jvm_thread" )
-public class JvmThreadEntity extends BasicEntity<JvmArgumentsEntity> {
+public class JvmThreadEntity extends BasicEntity<JvmThreadEntity> {
 
   /**
    * 线程快照时间
    */
 
-  private Date createTime;
+  private Date createTime = new Date();
 
   /**
    * 当前存活的线程数( 含后台和非后台线程 )
@@ -24,7 +24,7 @@ public class JvmThreadEntity extends BasicEntity<JvmArgumentsEntity> {
    * 自虚拟机启动以来被创建及启动的线程数
    */
 
-  private int startedThreadCount;
+  private long startedThreadCount;
 
   /**
    * 当前存活的后台线程数
@@ -65,11 +65,11 @@ public class JvmThreadEntity extends BasicEntity<JvmArgumentsEntity> {
   }
 
   @Column( name = "started_thread_count", nullable = false )
-  public int getStartedThreadCount() {
+  public long getStartedThreadCount() {
     return startedThreadCount;
   }
 
-  public JvmThreadEntity setStartedThreadCount( int startedThreadCount ) {
+  public JvmThreadEntity setStartedThreadCount( long startedThreadCount ) {
     this.startedThreadCount = startedThreadCount;
     return this;
   }

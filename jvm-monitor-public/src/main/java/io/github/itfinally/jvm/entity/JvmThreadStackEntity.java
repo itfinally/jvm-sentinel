@@ -4,13 +4,7 @@ import java.util.Objects;
 import javax.persistence.*;
 
 @Table( name = "v1_jvm_thread_stack" )
-public class JvmThreadStackEntity extends BasicEntity<JvmArgumentsEntity> {
-
-  /**
-   * 栈顺序
-   */
-
-  private int ordered;
+public class JvmThreadStackEntity extends BasicEntity<JvmThreadStackEntity> {
 
   /**
    * 类名称
@@ -41,16 +35,6 @@ public class JvmThreadStackEntity extends BasicEntity<JvmArgumentsEntity> {
    */
 
   private long threadInfoId;
-
-  @Column( name = "ordered", nullable = false )
-  public int getOrdered() {
-    return ordered;
-  }
-
-  public JvmThreadStackEntity setOrdered( int ordered ) {
-    this.ordered = ordered;
-    return this;
-  }
 
   @Column( name = "class_name", nullable = false )
   public String getClassName() {
@@ -108,8 +92,7 @@ public class JvmThreadStackEntity extends BasicEntity<JvmArgumentsEntity> {
     if ( !( o instanceof JvmThreadStackEntity ) ) return false;
     JvmThreadStackEntity that = ( JvmThreadStackEntity ) o;
 
-    return Objects.equals( getOrdered(), that.getOrdered() ) &&
-        Objects.equals( getClassName(), that.getClassName() ) &&
+    return Objects.equals( getClassName(), that.getClassName() ) &&
         Objects.equals( getMethodName(), that.getMethodName() ) &&
         Objects.equals( getFileName(), that.getFileName() ) &&
         Objects.equals( getLineNumber(), that.getLineNumber() ) &&
@@ -119,16 +102,14 @@ public class JvmThreadStackEntity extends BasicEntity<JvmArgumentsEntity> {
 
   @Override
   public int hashCode() {
-    return Objects.hash( getOrdered(), getClassName(), getMethodName(), getFileName(), getLineNumber(), getThreadInfoId()
-    );
+    return Objects.hash( getClassName(), getMethodName(), getFileName(), getLineNumber(), getThreadInfoId() );
   }
 
   @Override
   public String toString() {
     return "JvmThreadStackEntity{" +
 
-        "ordered=" + getOrdered() +
-        ", className='" + getClassName() + '\'' +
+        "className='" + getClassName() + '\'' +
         ", methodName='" + getMethodName() + '\'' +
         ", fileName='" + getFileName() + '\'' +
         ", lineNumber=" + getLineNumber() +

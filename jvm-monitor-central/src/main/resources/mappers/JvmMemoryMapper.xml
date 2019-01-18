@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.itfinally.jvm.repository.mapper.JvmMemoryMapper">
   <resultMap id="JvmMemoryEntity" type="io.github.itfinally.jvm.entity.JvmMemoryEntity">
-    <result property="id" column="id" jdbcType="BIGINT"/>
+    <id property="id" column="id" jdbcType="BIGINT"/>
     <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     <result property="memorySpaceName" column="memory_space_name" jdbcType="VARCHAR"/>
     <result property="init" column="init" jdbcType="BIGINT"/>
@@ -11,7 +11,6 @@
     <result property="max" column="max" jdbcType="BIGINT"/>
     <result property="jvmId" column="jvm_id" jdbcType="BIGINT"/>
     <result property="snapshotForGc" column="is_snapshot_for_gc" jdbcType="TINYINT"/>
-    <result property="happenBeforeGc" column="is_happen_before_gc" jdbcType="TINYINT"/>
     <result property="jvmGcId" column="jvm_gc_id" jdbcType="BIGINT"/>
   </resultMap>
 </mapper>

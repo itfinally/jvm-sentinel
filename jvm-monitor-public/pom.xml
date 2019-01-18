@@ -4,11 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>jvm-monitor</artifactId>
+  <artifactId>jvm-monitor-public</artifactId>
   <version>1.0.0.SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>jvm-monitor</name>
+  <name>jvm-monitor-public</name>
 
   <parent>
     <groupId>io.github.itfinally.jvm</groupId>
@@ -18,25 +18,18 @@
   </parent>
 
   <properties>
-    <retrofit.version>2.5.0</retrofit.version>
     <javax-persistence.version>1.0.2</javax-persistence.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.squareup.retrofit2</groupId>
-      <artifactId>retrofit</artifactId>
-      <version>${retrofit.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.squareup.retrofit2</groupId>
-      <artifactId>converter-jackson</artifactId>
-      <version>${retrofit.version}</version>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>${javax-persistence.version}</version>
     </dependency>
   </dependencies>
 
   <build>
-    <finalName>jvm-monitor</finalName>
+    <finalName>jvm-monitor-public</finalName>
   </build>
 </project>

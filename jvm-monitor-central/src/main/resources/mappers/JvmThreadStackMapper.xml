@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.itfinally.jvm.repository.mapper.JvmThreadStackMapper">
   <resultMap id="JvmThreadStackEntity" type="io.github.itfinally.jvm.entity.JvmThreadStackEntity">
-    <result property="ordered" column="ordered" jdbcType="INTEGER"/>
     <result property="className" column="class_name" jdbcType="VARCHAR"/>
     <result property="methodName" column="method_name" jdbcType="VARCHAR"/>
     <result property="fileName" column="file_name" jdbcType="VARCHAR"/>

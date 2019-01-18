@@ -6,13 +6,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Table( name = "v1_jvm_memory" )
-public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
+public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
 
   /**
    * 内存快照时间
    */
 
-  private Date createTime;
+  private Date createTime = new Date();
 
   /**
    * 内存空间名称
@@ -55,12 +55,6 @@ public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
    */
 
   private boolean snapshotForGc;
-
-  /**
-   * True 即代表 gc 前的情况, 否则为 gc 后的情况
-   */
-
-  private boolean happenBeforeGc;
 
   /**
    * gc Id
@@ -148,16 +142,6 @@ public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
     return this;
   }
 
-  @Column( name = "is_happen_before_gc", nullable = false )
-  public boolean isHappenBeforeGc() {
-    return happenBeforeGc;
-  }
-
-  public JvmMemoryEntity setHappenBeforeGc( boolean happenBeforeGc ) {
-    this.happenBeforeGc = happenBeforeGc;
-    return this;
-  }
-
   @Column( name = "jvm_gc_id", nullable = false )
   public long getJvmGcId() {
     return jvmGcId;
@@ -183,7 +167,6 @@ public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
         Objects.equals( getMax(), that.getMax() ) &&
         Objects.equals( getJvmId(), that.getJvmId() ) &&
         Objects.equals( isSnapshotForGc(), that.isSnapshotForGc() ) &&
-        Objects.equals( isHappenBeforeGc(), that.isHappenBeforeGc() ) &&
         Objects.equals( getJvmGcId(), that.getJvmGcId() );
 
   }
@@ -191,7 +174,7 @@ public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
   @Override
   public int hashCode() {
     return Objects.hash( getId(), getCreateTime(), getMemorySpaceName(), getInit(), getUsed(), getCommitted(),
-        getMax(), getJvmId(), isSnapshotForGc(), isHappenBeforeGc(), getJvmGcId() );
+        getMax(), getJvmId(), isSnapshotForGc(), getJvmGcId() );
   }
 
   @Override
@@ -207,7 +190,6 @@ public class JvmMemoryEntity extends BasicEntity<JvmArgumentsEntity> {
         ", max=" + getMax() +
         ", jvmId=" + getJvmId() +
         ", snapshotForGc=" + isSnapshotForGc() +
-        ", happenBeforeGc=" + isHappenBeforeGc() +
         ", jvmGcId=" + getJvmGcId() +
 
         '}';

@@ -3,14 +3,22 @@ package io.github.itfinally.jvm.entity;
 import java.util.Objects;
 import javax.persistence.*;
 
+import java.util.Date;
+
 @Table( name = "v1_jvm_thread_info" )
-public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
+public class JvmThreadInfoEntity extends BasicEntity<JvmThreadInfoEntity> {
 
   /**
    * 线程名称
    */
 
   private String threadName;
+
+  /**
+   * 线程快照时间
+   */
+
+  private Date createTime = new Date();
 
   /**
    * 是否本地线程
@@ -40,13 +48,19 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
    * 持有当前线程需要获取的锁的线程Id
    */
 
-  private int lockOwnerId;
+  private long lockOwnerId;
 
   /**
    * 持有当前线程需要获取的锁的线程名称
    */
 
   private String lockOwnerName;
+
+  /**
+   * 虚拟机线程状态 id
+   */
+
+  private long jvmThreadId;
 
   @Column( name = "thread_name", nullable = false )
   public String getThreadName() {
@@ -55,6 +69,16 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
 
   public JvmThreadInfoEntity setThreadName( String threadName ) {
     this.threadName = threadName;
+    return this;
+  }
+
+  @Column( name = "create_time", nullable = false )
+  public Date getCreateTime() {
+    return createTime;
+  }
+
+  public JvmThreadInfoEntity setCreateTime( Date createTime ) {
+    this.createTime = createTime;
     return this;
   }
 
@@ -99,11 +123,11 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
   }
 
   @Column( name = "lock_owner_id", nullable = false )
-  public int getLockOwnerId() {
+  public long getLockOwnerId() {
     return lockOwnerId;
   }
 
-  public JvmThreadInfoEntity setLockOwnerId( int lockOwnerId ) {
+  public JvmThreadInfoEntity setLockOwnerId( long lockOwnerId ) {
     this.lockOwnerId = lockOwnerId;
     return this;
   }
@@ -118,6 +142,16 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
     return this;
   }
 
+  @Column( name = "jvm_thread_id", nullable = false )
+  public long getJvmThreadId() {
+    return jvmThreadId;
+  }
+
+  public JvmThreadInfoEntity setJvmThreadId( long jvmThreadId ) {
+    this.jvmThreadId = jvmThreadId;
+    return this;
+  }
+
   @Override
   public boolean equals( Object o ) {
     if ( this == o ) return true;
@@ -126,19 +160,21 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
 
     return Objects.equals( getId(), that.getId() ) &&
         Objects.equals( getThreadName(), that.getThreadName() ) &&
+        Objects.equals( getCreateTime(), that.getCreateTime() ) &&
         Objects.equals( isNativeThread(), that.isNativeThread() ) &&
         Objects.equals( isSuspended(), that.isSuspended() ) &&
         Objects.equals( getState(), that.getState() ) &&
         Objects.equals( getLockName(), that.getLockName() ) &&
         Objects.equals( getLockOwnerId(), that.getLockOwnerId() ) &&
-        Objects.equals( getLockOwnerName(), that.getLockOwnerName() );
+        Objects.equals( getLockOwnerName(), that.getLockOwnerName() ) &&
+        Objects.equals( getJvmThreadId(), that.getJvmThreadId() );
 
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash( getId(), getThreadName(), isNativeThread(), isSuspended(), getState(), getLockName(),
-        getLockOwnerId(), getLockOwnerName() );
+    return Objects.hash( getId(), getThreadName(), getCreateTime(), isNativeThread(), isSuspended(), getState(),
+        getLockName(), getLockOwnerId(), getLockOwnerName(), getJvmThreadId() );
   }
 
   @Override
@@ -147,12 +183,14 @@ public class JvmThreadInfoEntity extends BasicEntity<JvmArgumentsEntity> {
 
         "id=" + getId() +
         ", threadName='" + getThreadName() + '\'' +
+        ", createTime=" + getCreateTime() +
         ", nativeThread=" + isNativeThread() +
         ", suspended=" + isSuspended() +
         ", state='" + getState() + '\'' +
         ", lockName='" + getLockName() + '\'' +
         ", lockOwnerId=" + getLockOwnerId() +
         ", lockOwnerName='" + getLockOwnerName() + '\'' +
+        ", jvmThreadId=" + getJvmThreadId() +
 
         '}';
   }

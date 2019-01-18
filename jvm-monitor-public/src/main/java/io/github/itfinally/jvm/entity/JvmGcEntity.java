@@ -6,13 +6,13 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Table( name = "v1_jvm_gc" )
-public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
+public class JvmGcEntity extends BasicEntity<JvmGcEntity> {
 
   /**
    * gc 快照时间
    */
 
-  private Date createTime;
+  private Date createTime = new Date();
 
   /**
    * gc 名称
@@ -30,7 +30,7 @@ public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
    * gc 距离虚拟机启动时间的毫秒值
    */
 
-  private long startTime;
+  private long timeGap;
 
   /**
    * gc 执行耗时的毫秒值
@@ -80,13 +80,13 @@ public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
     return this;
   }
 
-  @Column( name = "start_time", nullable = false )
-  public long getStartTime() {
-    return startTime;
+  @Column( name = "time_gap", nullable = false )
+  public long getTimeGap() {
+    return timeGap;
   }
 
-  public JvmGcEntity setStartTime( long startTime ) {
-    this.startTime = startTime;
+  public JvmGcEntity setTimeGap( long timeGap ) {
+    this.timeGap = timeGap;
     return this;
   }
 
@@ -130,7 +130,7 @@ public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
         Objects.equals( getCreateTime(), that.getCreateTime() ) &&
         Objects.equals( getActionName(), that.getActionName() ) &&
         Objects.equals( getCause(), that.getCause() ) &&
-        Objects.equals( getStartTime(), that.getStartTime() ) &&
+        Objects.equals( getTimeGap(), that.getTimeGap() ) &&
         Objects.equals( getDuration(), that.getDuration() ) &&
         Objects.equals( getThreadCount(), that.getThreadCount() ) &&
         Objects.equals( getJvmId(), that.getJvmId() );
@@ -139,7 +139,7 @@ public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
 
   @Override
   public int hashCode() {
-    return Objects.hash( getId(), getCreateTime(), getActionName(), getCause(), getStartTime(), getDuration(),
+    return Objects.hash( getId(), getCreateTime(), getActionName(), getCause(), getTimeGap(), getDuration(),
         getThreadCount(), getJvmId() );
   }
 
@@ -151,7 +151,7 @@ public class JvmGcEntity extends BasicEntity<JvmArgumentsEntity> {
         ", createTime=" + getCreateTime() +
         ", actionName='" + getActionName() + '\'' +
         ", cause='" + getCause() + '\'' +
-        ", startTime=" + getStartTime() +
+        ", timeGap=" + getTimeGap() +
         ", duration=" + getDuration() +
         ", threadCount=" + getThreadCount() +
         ", jvmId=" + getJvmId() +

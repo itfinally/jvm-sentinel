@@ -1,44 +1,53 @@
 package io.github.itfinally.jvm;
 
-import io.github.itfinally.jvm.components.WorkerCodeProvider;
+import io.github.itfinally.jvm.requests.HttpSecurityFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
+@Primary
 @Configuration
 @ConfigurationProperties( prefix = "monitor.java" )
-public class JvmMonitorProperties {
-  private String dataCentralHost;
+public class JvmMonitorProperties implements GUIDProviderBuilder {
 
   // True which mean system is in debug model, all functions are shutdown.
   private boolean turnOn = true;
 
+  // Thread information will be recorded if ${allowThreadDetected} is true
+  private boolean allowThreadDetected = true;
+
+  // Memory information will be recorded if ${allowMemoryDetected} is true
+  private boolean allowMemoryDetected = true;
+
+  // Collect virtual machine memory and threads information when gc has been active.
+  private boolean allowGcInfoDetected = true;
+
+  // Close VM if monitor initialize failed
+  private boolean closeVMIfInitializeFailed = false;
+
   // Message will be send to central on batch when size arrive ${messageSendSize}
   private long messageSendSize = 32;
 
-  // Message will be send to central on batch even if condition ${messageSendSize} is not satisfy
+  // Message will be send to central on batch at every ${messageIdleTime} seconds
+  // even if condition ${messageSendSize} is not satisfy.
   private long messageIdleTime = 900;
 
-  // Worker code provider
-  private Class<? extends WorkerCodeProvider> workerCodeProvider;
-
-  private boolean allowThreadDetected = true;
-
-  private long threadInfoDetectedDelay = 3;
-
-  private boolean allowMemoryDetected = true;
-
+  // Memory detection interval, which mean thread information
+  // has been collected at every ${memoryInfoDetectedDelay} seconds.
   private long memoryInfoDetectedDelay = 2;
 
-  private boolean allowGcInfoDetected = true;
+  // Thread detection interval, which mean thread information
+  // has been collected at every ${threadInfoDetectedDelay} seconds.
+  private long threadInfoDetectedDelay = 3;
 
-  public String getDataCentralHost() {
-    return dataCentralHost;
-  }
+  // Data central host
+  private String centralHost;
 
-  public JvmMonitorProperties setDataCentralHost( String dataCentralHost ) {
-    this.dataCentralHost = dataCentralHost;
-    return this;
-  }
+  // Data central security component, require if use 'https' protocol
+  private HttpSecurityFactory httpSecurityFactory;
+
+  // GUID provider
+  private Class<? extends GUIDProvider> guidProvider;
 
   public boolean isTurnOn() {
     return turnOn;
@@ -46,6 +55,42 @@ public class JvmMonitorProperties {
 
   public JvmMonitorProperties setTurnOn( boolean turnOn ) {
     this.turnOn = turnOn;
+    return this;
+  }
+
+  public boolean isAllowThreadDetected() {
+    return allowThreadDetected;
+  }
+
+  public JvmMonitorProperties setAllowThreadDetected( boolean allowThreadDetected ) {
+    this.allowThreadDetected = allowThreadDetected;
+    return this;
+  }
+
+  public boolean isAllowMemoryDetected() {
+    return allowMemoryDetected;
+  }
+
+  public JvmMonitorProperties setAllowMemoryDetected( boolean allowMemoryDetected ) {
+    this.allowMemoryDetected = allowMemoryDetected;
+    return this;
+  }
+
+  public boolean isAllowGcInfoDetected() {
+    return allowGcInfoDetected;
+  }
+
+  public JvmMonitorProperties setAllowGcInfoDetected( boolean allowGcInfoDetected ) {
+    this.allowGcInfoDetected = allowGcInfoDetected;
+    return this;
+  }
+
+  public boolean isCloseVMIfInitializeFailed() {
+    return closeVMIfInitializeFailed;
+  }
+
+  public JvmMonitorProperties setCloseVMIfInitializeFailed( boolean closeVMIfInitializeFailed ) {
+    this.closeVMIfInitializeFailed = closeVMIfInitializeFailed;
     return this;
   }
 
@@ -67,21 +112,12 @@ public class JvmMonitorProperties {
     return this;
   }
 
-  public Class<? extends WorkerCodeProvider> getWorkerCodeProvider() {
-    return workerCodeProvider;
+  public long getMemoryInfoDetectedDelay() {
+    return memoryInfoDetectedDelay;
   }
 
-  public JvmMonitorProperties setWorkerCodeProvider( Class<? extends WorkerCodeProvider> workerCodeProvider ) {
-    this.workerCodeProvider = workerCodeProvider;
-    return this;
-  }
-
-  public boolean isAllowThreadDetected() {
-    return allowThreadDetected;
-  }
-
-  public JvmMonitorProperties setAllowThreadDetected( boolean allowThreadDetected ) {
-    this.allowThreadDetected = allowThreadDetected;
+  public JvmMonitorProperties setMemoryInfoDetectedDelay( long memoryInfoDetectedDelay ) {
+    this.memoryInfoDetectedDelay = memoryInfoDetectedDelay;
     return this;
   }
 
@@ -94,30 +130,30 @@ public class JvmMonitorProperties {
     return this;
   }
 
-  public boolean isAllowMemoryDetected() {
-    return allowMemoryDetected;
+  public String getCentralHost() {
+    return centralHost;
   }
 
-  public JvmMonitorProperties setAllowMemoryDetected( boolean allowMemoryDetected ) {
-    this.allowMemoryDetected = allowMemoryDetected;
+  public JvmMonitorProperties setCentralHost( String centralHost ) {
+    this.centralHost = centralHost;
     return this;
   }
 
-  public long getMemoryInfoDetectedDelay() {
-    return memoryInfoDetectedDelay;
+  public HttpSecurityFactory getHttpSecurityFactory() {
+    return httpSecurityFactory;
   }
 
-  public JvmMonitorProperties setMemoryInfoDetectedDelay( long memoryInfoDetectedDelay ) {
-    this.memoryInfoDetectedDelay = memoryInfoDetectedDelay;
+  public JvmMonitorProperties setHttpSecurityFactory( HttpSecurityFactory httpSecurityFactory ) {
+    this.httpSecurityFactory = httpSecurityFactory;
     return this;
   }
 
-  public boolean isAllowGcInfoDetected() {
-    return allowGcInfoDetected;
+  public Class<? extends GUIDProvider> getGuidProvider() {
+    return guidProvider;
   }
 
-  public JvmMonitorProperties setAllowGcInfoDetected( boolean allowGcInfoDetected ) {
-    this.allowGcInfoDetected = allowGcInfoDetected;
+  public JvmMonitorProperties setGuidProvider( Class<? extends GUIDProvider> guidProvider ) {
+    this.guidProvider = guidProvider;
     return this;
   }
 }

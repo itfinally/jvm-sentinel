@@ -3,8 +3,22 @@ package io.github.itfinally.jvm.entity;
 import java.util.Objects;
 import javax.persistence.*;
 
-@Table( name = "v1_jvm" )
-public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
+import java.util.Date;
+
+@Table( name = "v1_jvm_status" )
+public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
+
+  /**
+   * 虚拟机 id, 使用 hash(ip:port) 作为 id 的值
+   */
+
+  private long jvmHashId;
+
+  /**
+   * 虚拟机启动时间点
+   */
+
+  private Date createTime = new Date();
 
   /**
    * 虚拟机名称
@@ -17,6 +31,12 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
    */
 
   private String version;
+
+  /**
+   * 虚拟机使用的 Java 版本
+   */
+
+  private String javaVersion;
 
   /**
    * 编译器信息
@@ -36,12 +56,32 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
 
   private String osVersion;
 
+  @Column( name = "jvm_hash_id", nullable = false )
+  public long getJvmHashId() {
+    return jvmHashId;
+  }
+
+  public JvmStatusEntity setJvmHashId( long jvmHashId ) {
+    this.jvmHashId = jvmHashId;
+    return this;
+  }
+
+  @Column( name = "create_time", nullable = false )
+  public Date getCreateTime() {
+    return createTime;
+  }
+
+  public JvmStatusEntity setCreateTime( Date createTime ) {
+    this.createTime = createTime;
+    return this;
+  }
+
   @Column( name = "name", nullable = false )
   public String getName() {
     return name;
   }
 
-  public JvmEntity setName( String name ) {
+  public JvmStatusEntity setName( String name ) {
     this.name = name;
     return this;
   }
@@ -51,8 +91,18 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
     return version;
   }
 
-  public JvmEntity setVersion( String version ) {
+  public JvmStatusEntity setVersion( String version ) {
     this.version = version;
+    return this;
+  }
+
+  @Column( name = "java_version", nullable = false )
+  public String getJavaVersion() {
+    return javaVersion;
+  }
+
+  public JvmStatusEntity setJavaVersion( String javaVersion ) {
+    this.javaVersion = javaVersion;
     return this;
   }
 
@@ -61,7 +111,7 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
     return compiler;
   }
 
-  public JvmEntity setCompiler( String compiler ) {
+  public JvmStatusEntity setCompiler( String compiler ) {
     this.compiler = compiler;
     return this;
   }
@@ -71,7 +121,7 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
     return osName;
   }
 
-  public JvmEntity setOsName( String osName ) {
+  public JvmStatusEntity setOsName( String osName ) {
     this.osName = osName;
     return this;
   }
@@ -81,7 +131,7 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
     return osVersion;
   }
 
-  public JvmEntity setOsVersion( String osVersion ) {
+  public JvmStatusEntity setOsVersion( String osVersion ) {
     this.osVersion = osVersion;
     return this;
   }
@@ -89,12 +139,15 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
   @Override
   public boolean equals( Object o ) {
     if ( this == o ) return true;
-    if ( !( o instanceof JvmEntity ) ) return false;
-    JvmEntity that = ( JvmEntity ) o;
+    if ( !( o instanceof JvmStatusEntity ) ) return false;
+    JvmStatusEntity that = ( JvmStatusEntity ) o;
 
     return Objects.equals( getId(), that.getId() ) &&
+        Objects.equals( getJvmHashId(), that.getJvmHashId() ) &&
+        Objects.equals( getCreateTime(), that.getCreateTime() ) &&
         Objects.equals( getName(), that.getName() ) &&
         Objects.equals( getVersion(), that.getVersion() ) &&
+        Objects.equals( getJavaVersion(), that.getJavaVersion() ) &&
         Objects.equals( getCompiler(), that.getCompiler() ) &&
         Objects.equals( getOsName(), that.getOsName() ) &&
         Objects.equals( getOsVersion(), that.getOsVersion() );
@@ -103,17 +156,20 @@ public class JvmEntity extends BasicEntity<JvmArgumentsEntity> {
 
   @Override
   public int hashCode() {
-    return Objects.hash( getId(), getName(), getVersion(),
+    return Objects.hash( getId(), getJvmHashId(), getCreateTime(), getName(), getVersion(), getJavaVersion(),
         getCompiler(), getOsName(), getOsVersion() );
   }
 
   @Override
   public String toString() {
-    return "JvmEntity{" +
+    return "JvmStatusEntity{" +
 
         "id=" + getId() +
+        ", jvmHashId=" + getJvmHashId() +
+        ", createTime=" + getCreateTime() +
         ", name='" + getName() + '\'' +
         ", version='" + getVersion() + '\'' +
+        ", javaVersion='" + getJavaVersion() + '\'' +
         ", compiler='" + getCompiler() + '\'' +
         ", osName='" + getOsName() + '\'' +
         ", osVersion='" + getOsVersion() + '\'' +
