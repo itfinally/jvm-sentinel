@@ -9,6 +9,7 @@ import java.util.Objects;
 
 public class JvmRegisterVo implements Serializable {
   private JvmStatusEntity jvmStatusEntity;
+
   private List<JvmArgumentsEntity> jvmArgumentsEntities;
 
   public JvmRegisterVo() {

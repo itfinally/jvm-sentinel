@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      auto-commit: false
+    url: jdbc:mysql://127.0.0.1:3306/jvm?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password:
+
+monitor:
+  java:
+    deliver-on-local: true
+
+mybatis:
+  jpa:
+    entity-scan: io.github.itfinally.jvm.entity
+

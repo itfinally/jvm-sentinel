@@ -6,20 +6,13 @@ import io.github.itfinally.jvm.components.events.MonitorEventManager;
 import io.github.itfinally.jvm.components.events.MonitorStartingEvent;
 import io.github.itfinally.jvm.entity.JvmArgumentsEntity;
 import io.github.itfinally.jvm.entity.JvmStatusEntity;
-import io.github.itfinally.jvm.requests.VManagerClient;
 import io.github.itfinally.jvm.vo.JvmRegisterVo;
-import io.github.itfinally.vo.SingleResponseVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.Resource;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
@@ -28,20 +21,16 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static io.github.itfinally.http.HttpCode.OK;
 
-@Component
-public class MachineIdInitializer implements ApplicationListener<EmbeddedServletContainerInitializedEvent> {
-  private static final Logger logger = LoggerFactory.getLogger( MachineIdInitializer.class );
+public abstract class AbstractMachineIdInitializer implements ApplicationListener<EmbeddedServletContainerInitializedEvent> {
+  private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-  public static long MACHINE_ID = -1;
-
-  @Resource
-  private VManagerClient vManagerClient;
+  private static long machineId;
 
   @Resource
   private JvmMonitorProperties properties;
@@ -59,6 +48,8 @@ public class MachineIdInitializer implements ApplicationListener<EmbeddedServlet
 
   private int retryTimeGap = 1;
 
+  protected abstract void dataDeliver( JvmRegisterVo jvmRegisterVo, Promise promise );
+
   @Override
   public void onApplicationEvent( EmbeddedServletContainerInitializedEvent embeddedServletContainerInitializedEvent ) {
     if ( !isCallOnce ) {
@@ -72,6 +63,10 @@ public class MachineIdInitializer implements ApplicationListener<EmbeddedServlet
 
       initializingMachineId( embeddedServletContainerInitializedEvent );
     }
+  }
+
+  public static long machineId() {
+    return machineId;
   }
 
   private void initializingMachineId( EmbeddedServletContainerInitializedEvent embeddedServletContainerInitializedEvent ) {
@@ -104,12 +99,15 @@ public class MachineIdInitializer implements ApplicationListener<EmbeddedServlet
 
     // Register jvm starting info
     JvmStatusEntity jvmStatusEntity = new JvmStatusEntity()
+        .setPort( port )
+        .setAddress( address )
         .setName( runtimeMXBean.getVmName() )
         .setVersion( runtimeMXBean.getVmVersion() )
         .setOsName( operatingSystemMXBean.getName() )
         .setJvmHashId( buildMachineId( address, port ) )
         .setJavaVersion( runtimeMXBean.getSpecVersion() )
         .setOsVersion( operatingSystemMXBean.getVersion() )
+        .setApplicationName( properties.getApplicationName() )
         .setCompiler( ManagementFactory.getCompilationMXBean().getName() );
 
     List<JvmArgumentsEntity> argumentsEntities = runtimeMXBean.getInputArguments()
@@ -121,66 +119,7 @@ public class MachineIdInitializer implements ApplicationListener<EmbeddedServlet
 
         .collect( Collectors.toList() );
 
-    Call<SingleResponseVo<Long>> calling = vManagerClient.vmRegister( new JvmRegisterVo( jvmStatusEntity, argumentsEntities ) );
-
-    calling.enqueue( new Callback<SingleResponseVo<Long>>() {
-      @Override
-      @ParametersAreNonnullByDefault
-      public void onResponse( Call<SingleResponseVo<Long>> call, Response<SingleResponseVo<Long>> response ) {
-        if ( !response.isSuccessful() ) {
-          logger.warn( "Failure to communicate with host({}), auto-retry later...", calling.request().url().toString() );
-
-          logger.warn( "The server responded with code: {}, message: {}", response.code(), response.message() );
-
-          properties.setTurnOn( false );
-
-          scheduleRetryTask();
-
-          return;
-        }
-
-        if ( null == response.body() ) {
-          throw new IllegalStateException( "The main service should be return something but got nothing when call 'response.body()'." );
-        }
-
-        SingleResponseVo<Long> responseBody = response.body();
-        if ( OK.getCode() != responseBody.getStatus() ) {
-          logger.warn( "Failure to request with host({}), auto-retry later...", calling.request().url().toString() );
-
-          logger.warn( "The server responded with code: {}, message: {}", responseBody.getStatus(), responseBody.getMessage() );
-
-          properties.setTurnOn( false );
-
-          scheduleRetryTask();
-
-          return;
-        }
-
-        if ( null == responseBody.getResult() ) {
-          throw new IllegalStateException( "The main server should be return something but got nothing at 'responseBody.getResult()'." );
-        }
-
-        properties.setTurnOn( true );
-
-        MACHINE_ID = responseBody.getResult();
-
-        monitorEventManager.publish( new MonitorStartingEvent( monitorEventManager, properties ) );
-      }
-
-      @Override
-      @ParametersAreNonnullByDefault
-      public void onFailure( Call<SingleResponseVo<Long>> call, Throwable throwable ) {
-        logger.warn( "Failure to send request to host({}), auto-retry later...", calling.request().url().toString() );
-
-        logger.error( "Cause by exception: {}, message: {}", throwable.getClass().getSimpleName(), throwable.getMessage() );
-
-        properties.setTurnOn( false );
-
-        scheduleRetryTask();
-
-        call.cancel();
-      }
-    } );
+    dataDeliver( new JvmRegisterVo( jvmStatusEntity, argumentsEntities ), new Promise() );
   }
 
   private long buildMachineId( String address, String port ) {
@@ -189,9 +128,28 @@ public class MachineIdInitializer implements ApplicationListener<EmbeddedServlet
   }
 
   private void scheduleRetryTask() {
+
+    logger.info( "Machine id initializing will be retry after {} seconds...", retryTimeGap );
+
     retryWorker.schedule( () -> initializingMachineId( embeddedServletContainerInitializedEvent ),
         retryTimeGap, TimeUnit.SECONDS );
 
     retryTimeGap *= 2;
+  }
+
+  protected class Promise {
+    void resolve( long machineId ) {
+      properties.setTurnOn( true );
+
+      AbstractMachineIdInitializer.machineId = machineId;
+
+      monitorEventManager.publish( new MonitorStartingEvent( monitorEventManager, properties ) );
+    }
+
+    void retry() {
+      properties.setTurnOn( false );
+
+      AbstractMachineIdInitializer.this.scheduleRetryTask();
+    }
   }
 }

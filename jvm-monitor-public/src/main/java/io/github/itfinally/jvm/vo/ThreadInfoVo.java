@@ -10,7 +10,9 @@ import java.util.Objects;
 
 public class ThreadInfoVo implements Serializable {
   private JvmThreadEntity jvmThreadEntity;
+
   private List<JvmThreadInfoEntity> jvmThreadInfoEntities;
+
   private List<JvmThreadStackEntity> jvmThreadStackEntities;
 
   public ThreadInfoVo() {

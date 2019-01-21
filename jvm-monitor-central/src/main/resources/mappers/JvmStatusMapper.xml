@@ -5,6 +5,9 @@
     <id property="id" column="id" jdbcType="BIGINT"/>
     <result property="jvmHashId" column="jvm_hash_id" jdbcType="BIGINT"/>
     <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <result property="applicationName" column="application_name" jdbcType="VARCHAR"/>
+    <result property="address" column="address" jdbcType="VARCHAR"/>
+    <result property="port" column="port" jdbcType="VARCHAR"/>
     <result property="name" column="name" jdbcType="VARCHAR"/>
     <result property="version" column="version" jdbcType="VARCHAR"/>
     <result property="javaVersion" column="java_version" jdbcType="VARCHAR"/>

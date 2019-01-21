@@ -1,16 +1,16 @@
 package io.github.itfinally.jvm.monitors;
 
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import io.github.itfinally.jvm.commons.MemoryBlock;
-import io.github.itfinally.jvm.components.MachineIdInitializer;
+import io.github.itfinally.jvm.components.AbstractMachineIdInitializer;
 import io.github.itfinally.jvm.components.events.MemoryDetectedEvent;
 import io.github.itfinally.jvm.components.events.MonitorEventManager;
 import io.github.itfinally.jvm.entity.JvmMemoryEntity;
 import io.github.itfinally.jvm.requests.VManagerClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
@@ -20,14 +20,20 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
+@ConditionalOnProperty( prefix = "monitor.java", value = "deliver-on-local", havingValue = "false" )
 public class MemoryMonitor extends AbstractMonitorProcessor {
   private final AtomicBoolean isRunning = new AtomicBoolean( false );
 
-  @Resource
-  private VManagerClient vManagerClient;
+  private VManagerClient managerClient;
 
   public MemoryMonitor( MonitorEventManager eventManager ) {
     eventManager.register( this );
+  }
+
+  @Autowired( required = false )
+  public MemoryMonitor setManagerClient( VManagerClient managerClient ) {
+    this.managerClient = managerClient;
+    return this;
   }
 
   public List<JvmMemoryEntity> getCurrentMemoryInfos( boolean isSnapshotForGc, long jvmGcId ) {
@@ -40,7 +46,7 @@ public class MemoryMonitor extends AbstractMonitorProcessor {
     JvmMemoryEntity heapMemoryEntity = new JvmMemoryEntity()
         .setJvmGcId( isSnapshotForGc ? jvmGcId : -1 )
         .setSnapshotForGc( isSnapshotForGc )
-        .setJvmId( MachineIdInitializer.MACHINE_ID )
+        .setJvmId( AbstractMachineIdInitializer.machineId() )
         .setMemorySpaceName( MemoryBlock.HEAP.toString() )
         .setCommitted( heapMemory.getCommitted() )
         .setInit( heapMemory.getInit() )
@@ -50,7 +56,7 @@ public class MemoryMonitor extends AbstractMonitorProcessor {
     JvmMemoryEntity nonHeapMemoryEntity = new JvmMemoryEntity()
         .setJvmGcId( isSnapshotForGc ? jvmGcId : -1 )
         .setSnapshotForGc( isSnapshotForGc )
-        .setJvmId( MachineIdInitializer.MACHINE_ID )
+        .setJvmId( AbstractMachineIdInitializer.machineId() )
         .setMemorySpaceName( MemoryBlock.NON_HEAP.toString() )
         .setCommitted( nonHeapMemory.getCommitted() )
         .setInit( nonHeapMemory.getInit() )
@@ -70,7 +76,7 @@ public class MemoryMonitor extends AbstractMonitorProcessor {
       jvmMemoryEntities.add( new JvmMemoryEntity()
           .setMemorySpaceName( memoryPoolMXBean.getName() )
           .setJvmGcId( isSnapshotForGc ? jvmGcId : -1 )
-          .setJvmId( MachineIdInitializer.MACHINE_ID )
+          .setJvmId( AbstractMachineIdInitializer.machineId() )
           .setSnapshotForGc( isSnapshotForGc )
           .setCommitted( memoryUsage.getCommitted() )
           .setInit( memoryUsage.getInit() )
@@ -85,13 +91,13 @@ public class MemoryMonitor extends AbstractMonitorProcessor {
   }
 
   @Subscribe
-  private void memoryInfoDetected( MemoryDetectedEvent event ) {
+  protected void memoryInfoDetected( MemoryDetectedEvent event ) {
     if ( !isRunning.compareAndSet( false, true ) ) {
       return;
     }
 
     try {
-      sendData( vManagerClient.saveMemoryInfos( getCurrentMemoryInfos( false, -1 ) ) );
+      deliverDataByAsyncHttp( managerClient.saveMemoryInfos( getCurrentMemoryInfos( false, -1 ) ) );
 
     } finally {
       isRunning.compareAndSet( true, false );

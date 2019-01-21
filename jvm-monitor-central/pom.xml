@@ -22,7 +22,7 @@
     <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
     <thymeleaf-layout-dialect.version>2.2.0</thymeleaf-layout-dialect.version>
 
-    <hikariCP.version>2.4.13</hikariCP.version>
+    <hikariCP.version>3.3.0</hikariCP.version>
   </properties>
 
   <dependencies>
@@ -49,11 +49,11 @@
       <version>1.0.0.RELEASE</version>
     </dependency>
 
-    <!--<dependency>-->
-      <!--<groupId>io.github.itfinally.jvm</groupId>-->
-      <!--<artifactId>jvm-monitor</artifactId>-->
-      <!--<version>1.0.0.SNAPSHOT</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>io.github.itfinally.jvm</groupId>
+      <artifactId>jvm-monitor</artifactId>
+      <version>1.0.0.SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>mysql</groupId>
@@ -63,7 +63,7 @@
 
     <dependency>
       <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP-java7</artifactId>
+      <artifactId>HikariCP</artifactId>
       <version>${hikariCP.version}</version>
     </dependency>
   </dependencies>

@@ -11,6 +11,7 @@
     <result property="max" column="max" jdbcType="BIGINT"/>
     <result property="jvmId" column="jvm_id" jdbcType="BIGINT"/>
     <result property="snapshotForGc" column="is_snapshot_for_gc" jdbcType="TINYINT"/>
+    <result property="happenBeforeGc" column="is_happen_before_gc" jdbcType="TINYINT"/>
     <result property="jvmGcId" column="jvm_gc_id" jdbcType="BIGINT"/>
   </resultMap>
 </mapper>

@@ -5,11 +5,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.sun.management.GarbageCollectionNotificationInfo;
 import io.github.itfinally.jvm.JvmMonitorProperties;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.github.itfinally.logger.CheckedLogger;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
 import javax.management.openmbean.CompositeData;
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class MonitorEventManager {
-  private static final Logger logger = LoggerFactory.getLogger( MonitorEventManager.class );
+  private static final CheckedLogger logger = new CheckedLogger( MonitorEventManager.class );
 
   private final EventBus eventBus = new AsyncEventBus( new ThreadPoolExecutor( 1, 2,
       1, TimeUnit.SECONDS, new LinkedBlockingDeque<>( 1024 ), new ThreadFactory() {
@@ -28,7 +27,8 @@ public class MonitorEventManager {
     private final AtomicInteger counter = new AtomicInteger( 0 );
 
     @Override
-    public Thread newThread( @NotNull Runnable r ) {
+    @ParametersAreNonnullByDefault
+    public Thread newThread( Runnable r ) {
       Thread thread = new Thread( r );
       thread.setName( String.format( "monitor-event-publisher-%d", counter.getAndIncrement() ) );
       thread.setUncaughtExceptionHandler( ( t, e ) -> logger.error( "Catch exception in event bus", e ) );
@@ -73,21 +73,25 @@ public class MonitorEventManager {
     final JvmMonitorProperties properties = event.getProperties();
 
     if ( properties.isAllowThreadDetected() ) {
-      scheduleWorker.schedule( () -> {
+      scheduleWorker.scheduleAtFixedRate( () -> {
             if ( properties.isTurnOn() ) {
               eventBus.post( new ThreadDetectedEvent( MonitorEventManager.this ) );
             }
           },
-          properties.getThreadInfoDetectedDelay(), TimeUnit.SECONDS );
+          properties.getThreadInfoDetectedDelay(), properties.getThreadInfoDetectedDelay(), TimeUnit.SECONDS );
+
+      logger.info( "Thread detected active..." );
     }
 
     if ( properties.isAllowMemoryDetected() ) {
-      scheduleWorker.schedule( () -> {
+      scheduleWorker.scheduleAtFixedRate( () -> {
             if ( properties.isTurnOn() ) {
               eventBus.post( new MemoryDetectedEvent( MonitorEventManager.this ) );
             }
           },
-          properties.getMemoryInfoDetectedDelay(), TimeUnit.SECONDS );
+          properties.getThreadInfoDetectedDelay(), properties.getMemoryInfoDetectedDelay(), TimeUnit.SECONDS );
+
+      logger.info( "Memory detected active..." );
     }
 
     if ( properties.isAllowGcInfoDetected() ) {
@@ -105,6 +109,10 @@ public class MonitorEventManager {
       for ( GarbageCollectorMXBean gcBean : ManagementFactory.getGarbageCollectorMXBeans() ) {
         ( ( NotificationEmitter ) gcBean ).addNotificationListener( notificationListener, null, null );
       }
+
+      logger.info( "Gc detected active..." );
     }
+
+    logger.info( "Jvm monitor has been started" );
   }
 }

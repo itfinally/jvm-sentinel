@@ -24,18 +24,18 @@ public abstract class AbstractMonitorProcessor {
   @Qualifier( "taskRetryScheduleWorker" )
   private volatile ScheduledExecutorService retryWorker;
 
-  protected void sendData( Call<BasicResponseVo.Default> calling ) {
+  protected void deliverDataByAsyncHttp( Call<BasicResponseVo.Default> calling ) {
+    final AtomicInteger counter = new AtomicInteger( 0 );
+
+    final AtomicInteger timeGap = new AtomicInteger( 4 );
+
     calling.enqueue( new Callback<BasicResponseVo.Default>() {
-
-      private final AtomicInteger counter = new AtomicInteger( 0 );
-
-      private final AtomicInteger timeGap = new AtomicInteger( 4 );
-
       @Override
       @ParametersAreNonnullByDefault
       public void onResponse( Call<BasicResponseVo.Default> call, Response<BasicResponseVo.Default> response ) {
         if ( !response.isSuccessful() ) {
-          onFailure( call.clone(), new Throwable( "Request failure with some network issue" ) );
+          onFailure( call.clone(), new Throwable( String.format( "Request failure with some network issue, " +
+              "responding code: %d, message: %s", response.code(), response.message() ) ) );
 
           return;
         }

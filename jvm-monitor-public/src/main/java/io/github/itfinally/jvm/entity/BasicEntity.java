@@ -5,10 +5,15 @@ import io.github.itfinally.jvm.GUIDProvider;
 import io.github.itfinally.jvm.GUIDProviderBuilder;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+
 @SuppressWarnings( "unchecked" )
 public class BasicEntity<Entity extends BasicEntity<Entity>> {
   private long id = GUIDProviderInjector.guidProvider.getGUID();
 
+  @Id
+  @Column( name = "id" )
   public long getId() {
     return id;
   }

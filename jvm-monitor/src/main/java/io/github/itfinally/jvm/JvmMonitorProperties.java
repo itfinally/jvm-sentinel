@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Primary;
 @ConfigurationProperties( prefix = "monitor.java" )
 public class JvmMonitorProperties implements GUIDProviderBuilder {
 
+  // This application name
+  private String applicationName = "unknownServer";
+
   // True which mean system is in debug model, all functions are shutdown.
   private boolean turnOn = true;
 
@@ -25,6 +28,9 @@ public class JvmMonitorProperties implements GUIDProviderBuilder {
   // Close VM if monitor initialize failed
   private boolean closeVMIfInitializeFailed = false;
 
+  // True which mean data not deliver by http but local method implemented it
+  private boolean deliverOnLocal = false;
+
   // Message will be send to central on batch when size arrive ${messageSendSize}
   private long messageSendSize = 32;
 
@@ -34,11 +40,11 @@ public class JvmMonitorProperties implements GUIDProviderBuilder {
 
   // Memory detection interval, which mean thread information
   // has been collected at every ${memoryInfoDetectedDelay} seconds.
-  private long memoryInfoDetectedDelay = 2;
+  private long memoryInfoDetectedDelay = 120;
 
   // Thread detection interval, which mean thread information
   // has been collected at every ${threadInfoDetectedDelay} seconds.
-  private long threadInfoDetectedDelay = 3;
+  private long threadInfoDetectedDelay = 180;
 
   // Data central host
   private String centralHost;
@@ -47,7 +53,16 @@ public class JvmMonitorProperties implements GUIDProviderBuilder {
   private HttpSecurityFactory httpSecurityFactory;
 
   // GUID provider
-  private Class<? extends GUIDProvider> guidProvider;
+  private Class<? extends GUIDProvider> guidProvider = GUIDProvider.DefaultGUIDProvider.class;
+
+  public String getApplicationName() {
+    return applicationName;
+  }
+
+  public JvmMonitorProperties setApplicationName( String applicationName ) {
+    this.applicationName = applicationName;
+    return this;
+  }
 
   public boolean isTurnOn() {
     return turnOn;
@@ -91,6 +106,15 @@ public class JvmMonitorProperties implements GUIDProviderBuilder {
 
   public JvmMonitorProperties setCloseVMIfInitializeFailed( boolean closeVMIfInitializeFailed ) {
     this.closeVMIfInitializeFailed = closeVMIfInitializeFailed;
+    return this;
+  }
+
+  public boolean isDeliverOnLocal() {
+    return deliverOnLocal;
+  }
+
+  public JvmMonitorProperties setDeliverOnLocal( boolean deliverOnLocal ) {
+    this.deliverOnLocal = deliverOnLocal;
     return this;
   }
 

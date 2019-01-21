@@ -1,5 +1,7 @@
 package io.github.itfinally.jvm;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public interface GUIDProvider {
   long getGUID();
 
@@ -7,7 +9,7 @@ public interface GUIDProvider {
 
     @Override
     public long getGUID() {
-      return -1;
+      return ThreadLocalRandom.current().nextLong( 0, Long.MAX_VALUE );
     }
   }
 }

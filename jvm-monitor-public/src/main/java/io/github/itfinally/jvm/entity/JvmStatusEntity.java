@@ -21,6 +21,24 @@ public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
   private Date createTime = new Date();
 
   /**
+   * 隶属的服务名
+   */
+
+  private String applicationName;
+
+  /**
+   * IP 地址, 可能是公网, 也可能是内网
+   */
+
+  private String address;
+
+  /**
+   * 服务实例的端口号
+   */
+
+  private String port;
+
+  /**
    * 虚拟机名称
    */
 
@@ -73,6 +91,36 @@ public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
 
   public JvmStatusEntity setCreateTime( Date createTime ) {
     this.createTime = createTime;
+    return this;
+  }
+
+  @Column( name = "application_name", nullable = false )
+  public String getApplicationName() {
+    return applicationName;
+  }
+
+  public JvmStatusEntity setApplicationName( String applicationName ) {
+    this.applicationName = applicationName;
+    return this;
+  }
+
+  @Column( name = "address", nullable = false )
+  public String getAddress() {
+    return address;
+  }
+
+  public JvmStatusEntity setAddress( String address ) {
+    this.address = address;
+    return this;
+  }
+
+  @Column( name = "port", nullable = false )
+  public String getPort() {
+    return port;
+  }
+
+  public JvmStatusEntity setPort( String port ) {
+    this.port = port;
     return this;
   }
 
@@ -145,6 +193,9 @@ public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
     return Objects.equals( getId(), that.getId() ) &&
         Objects.equals( getJvmHashId(), that.getJvmHashId() ) &&
         Objects.equals( getCreateTime(), that.getCreateTime() ) &&
+        Objects.equals( getApplicationName(), that.getApplicationName() ) &&
+        Objects.equals( getAddress(), that.getAddress() ) &&
+        Objects.equals( getPort(), that.getPort() ) &&
         Objects.equals( getName(), that.getName() ) &&
         Objects.equals( getVersion(), that.getVersion() ) &&
         Objects.equals( getJavaVersion(), that.getJavaVersion() ) &&
@@ -156,8 +207,8 @@ public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
 
   @Override
   public int hashCode() {
-    return Objects.hash( getId(), getJvmHashId(), getCreateTime(), getName(), getVersion(), getJavaVersion(),
-        getCompiler(), getOsName(), getOsVersion() );
+    return Objects.hash( getId(), getJvmHashId(), getCreateTime(), getApplicationName(), getAddress(), getPort(),
+        getName(), getVersion(), getJavaVersion(), getCompiler(), getOsName(), getOsVersion() );
   }
 
   @Override
@@ -167,6 +218,9 @@ public class JvmStatusEntity extends BasicEntity<JvmStatusEntity> {
         "id=" + getId() +
         ", jvmHashId=" + getJvmHashId() +
         ", createTime=" + getCreateTime() +
+        ", applicationName='" + getApplicationName() + '\'' +
+        ", address='" + getAddress() + '\'' +
+        ", port='" + getPort() + '\'' +
         ", name='" + getName() + '\'' +
         ", version='" + getVersion() + '\'' +
         ", javaVersion='" + getJavaVersion() + '\'' +

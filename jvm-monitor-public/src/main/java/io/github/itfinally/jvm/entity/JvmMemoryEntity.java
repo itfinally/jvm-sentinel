@@ -57,6 +57,12 @@ public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
   private boolean snapshotForGc;
 
   /**
+   * True 即代表发生在 gc 前, 否则为 gc 后
+   */
+
+  private boolean happenBeforeGc;
+
+  /**
    * gc Id
    */
 
@@ -142,6 +148,16 @@ public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
     return this;
   }
 
+  @Column( name = "is_happen_before_gc", nullable = false )
+  public boolean isHappenBeforeGc() {
+    return happenBeforeGc;
+  }
+
+  public JvmMemoryEntity setHappenBeforeGc( boolean happenBeforeGc ) {
+    this.happenBeforeGc = happenBeforeGc;
+    return this;
+  }
+
   @Column( name = "jvm_gc_id", nullable = false )
   public long getJvmGcId() {
     return jvmGcId;
@@ -167,6 +183,7 @@ public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
         Objects.equals( getMax(), that.getMax() ) &&
         Objects.equals( getJvmId(), that.getJvmId() ) &&
         Objects.equals( isSnapshotForGc(), that.isSnapshotForGc() ) &&
+        Objects.equals( isHappenBeforeGc(), that.isHappenBeforeGc() ) &&
         Objects.equals( getJvmGcId(), that.getJvmGcId() );
 
   }
@@ -174,7 +191,7 @@ public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
   @Override
   public int hashCode() {
     return Objects.hash( getId(), getCreateTime(), getMemorySpaceName(), getInit(), getUsed(), getCommitted(),
-        getMax(), getJvmId(), isSnapshotForGc(), getJvmGcId() );
+        getMax(), getJvmId(), isSnapshotForGc(), isHappenBeforeGc(), getJvmGcId() );
   }
 
   @Override
@@ -190,6 +207,7 @@ public class JvmMemoryEntity extends BasicEntity<JvmMemoryEntity> {
         ", max=" + getMax() +
         ", jvmId=" + getJvmId() +
         ", snapshotForGc=" + isSnapshotForGc() +
+        ", happenBeforeGc=" + isHappenBeforeGc() +
         ", jvmGcId=" + getJvmGcId() +
 
         '}';
